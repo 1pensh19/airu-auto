@@ -268,19 +268,23 @@ if generate:
       "visual": "映像内容"
     }}
   ],
-  "visual_direction": {{
+"visual_direction": {{
     "style": "全体のビジュアル方針",
     "camera": "カメラや動き",
     "color_light": "色・光",
     "avoid": ["避ける表現1", "避ける表現2"]
-  }},
-  "image_video_prompts": [
-    "生成AI向けの具体的な映像または画像プロンプト"
-  ],
-  "caption": "Instagram用キャプション。長すぎない。",
-  "hashtags": ["#AIる", "#...", "#..."],
-  "fact_check_needed": ["事実確認が必要な主張。なければ空配列"],
-  "quality_reason": "量産AI投稿ではなく、この企画ならではの価値"
+}},
+"character_design": [
+    "人物が登場する企画の場合のみ記載。各人物について年齢感、髪型、服装、体格、特徴を具体的に定義し、全カットで同一人物として維持する。人物が登場しない場合は空配列にする。"
+],
+"location_design": "同じ場所を複数カットで使用する場合のみ、空間、家具、背景、照明、時間帯など継続すべき特徴を具体的に定義する。不要な場合は空文字列にする。",
+"image_video_prompts": [
+    "各カットごとの生成AI向け具体的プロンプト。character_designとlocation_designが設定されている場合は必ず引き継ぎ、人物の顔・髪型・服装・年齢感や、場所の構造・背景などをカット間で勝手に変更しない。"
+],
+"caption": "Instagram用キャプション。長すぎない。",
+"hashtags": ["#AIる", "#...", "#..."],
+"fact_check_needed": ["事実確認が必要な主張。なければ空配列"],
+"quality_reason": "量産AI投稿ではなく、この企画ならではの価値"
 }}
 """
 
