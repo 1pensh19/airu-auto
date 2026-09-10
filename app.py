@@ -191,8 +191,15 @@ if generate:
         st.error("OpenAI API Keyを入力してください。")
         st.stop()
 
-    past_themes = history["theme"].dropna().astype(str).tolist()[-100:]
-    history_text = "\n".join(f"- {x}" for x in past_themes) if past_themes else "まだありません。"
+past_items = history[["theme", "hook", "format"]].fillna("").astype(str).tail(100)
+
+if len(past_items):
+    history_text = "\n".join(
+        f"- テーマ: {row['theme']} / フック: {row['hook']} / 形式: {row['format']}"
+        for _, row in past_items.iterrows()
+    )
+else:
+    history_text = "まだありません。"
 
     prompt = f"""
 以下の条件で、今日のInstagram Reels企画を1本作ってください。
