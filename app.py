@@ -187,7 +187,7 @@ with col2:
     st.metric("登録テーマ数", len(history))
 
 if generate:
-    st.warning("生成ボタンは正常に反応しています")
+    
     if not api_key:
         st.error("OpenAI API Keyを入力してください。")
         st.stop()
