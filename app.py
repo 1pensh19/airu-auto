@@ -341,7 +341,7 @@ if data:
     for i, p in enumerate(data.get("image_video_prompts", []), 1):
         st.code(f"{i}. {p}", language=None)
         image_prompts = data.get("image_video_prompts", [])
-        if image_prompts:
+        if i == 1 and image_prompts:
             if st.button("カット1の画像を生成", use_container_width=True):
                 try:
                     with st.spinner("カット1の画像を生成しています..."):
