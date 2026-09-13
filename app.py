@@ -371,7 +371,7 @@ if data:
                         caption=f"カット{cut_no}",
                     )
 
-            except Exception as e:
+              except Exception as e:
                 st.error(f"画像生成エラー: {e}")   
     
 
