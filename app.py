@@ -347,11 +347,11 @@ if data:
 
     if image_prompts:
         if st.button("全カットの画像を生成", use_container_width=True):
-            try:
+             try:
                 generated_image_bytes = []
                 generated_images = []
 
-                    with st.spinner("全カットの画像を生成しています..."):
+                with st.spinner("全カットの画像を生成しています..."):
                     for cut_no, prompt in enumerate(image_prompts, 1):
                         image_result = client.images.generate(
                             model="gpt-image-2",
@@ -365,14 +365,14 @@ if data:
                             base64.b64decode(image_b64)
                         )
 
-                
                 for cut_no, image_bytes in enumerate(generated_image_bytes, 1):
-        st.image(
-            image_bytes,
-            caption=f"カット{cut_no}",
-        )
-except Exception as e:
-                st.error(f"画像生成エラー: {e}")
+                    st.image(
+                        image_bytes,
+                        caption=f"カット{cut_no}",
+                    )
+
+            except Exception as e:
+                st.error(f"画像生成エラー: {e}")   
     
 
     st.subheader("Instagram")
