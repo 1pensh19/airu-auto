@@ -340,6 +340,24 @@ if data:
     st.subheader("生成プロンプト")
     for i, p in enumerate(data.get("image_video_prompts", []), 1):
         st.code(f"{i}. {p}", language=None)
+        image_prompts = data.get("image_video_prompts", [])
+        if image_prompts:
+            if st.button("カット1の画像を生成", use_container_width=True):
+                try:
+                    with st.spinner("カット1の画像を生成しています..."):
+                        image_result = client.images.generate(
+                            model="gpt-image-2",
+                            prompt=image_prompts[0],
+                            size="1024x1536",
+                            quality="medium",
+                        )
+                    st.image(
+                        f"data:image/png;base64,{image_result.data[0].b64_json}",
+                        caption="カット1",
+                    )
+                except Exception as e:
+                    st.error(f"画像生成エラー: {e}")
+    
 
     st.subheader("Instagram")
     st.text_area("Caption", value=data.get("caption", ""), height=140)
