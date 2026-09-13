@@ -337,8 +337,7 @@ if data:
     st.write("**Color / Light:**", vd.get("color_light", ""))
     if vd.get("avoid"):
         st.write("**Avoid:**", " / ".join(vd.get("avoid", [])))
-
-        st.subheader("生成プロンプト")
+    st.subheader("生成プロンプト")
 
     image_prompts = data.get("image_video_prompts", [])
 
@@ -347,9 +346,8 @@ if data:
 
     if image_prompts:
         if st.button("全カットの画像を生成", use_container_width=True):
-             try:
+            try:
                 generated_image_bytes = []
-                generated_images = []
 
                 with st.spinner("全カットの画像を生成しています..."):
                     for cut_no, prompt in enumerate(image_prompts, 1):
@@ -359,8 +357,8 @@ if data:
                             size="1024x1536",
                             quality="medium",
                         )
+
                         image_b64 = image_result.data[0].b64_json
-                        generated_images.append(image_b64)
                         generated_image_bytes.append(
                             base64.b64decode(image_b64)
                         )
@@ -372,7 +370,7 @@ if data:
                     )
 
             except Exception as e:
-                        st.error(f"画像生成エラー: {e}")
+                st.error(f"画像生成エラー: {e}")
         
                 
     
