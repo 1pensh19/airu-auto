@@ -337,26 +337,38 @@ if data:
     if vd.get("avoid"):
         st.write("**Avoid:**", " / ".join(vd.get("avoid", [])))
 
-    st.subheader("生成プロンプト")
-    for i, p in enumerate(data.get("image_video_prompts", []), 1):
+        st.subheader("生成プロンプト")
+
+    image_prompts = data.get("image_video_prompts", [])
+
+    for i, p in enumerate(image_prompts, 1):
         st.code(f"{i}. {p}", language=None)
-        image_prompts = data.get("image_video_prompts", [])
-        if i == 1 and image_prompts:
-            if st.button("カット1の画像を生成", use_container_width=True):
-                try:
-                    with st.spinner("カット1の画像を生成しています..."):
+
+    if image_prompts:
+        if st.button("全カットの画像を生成", use_container_width=True):
+            try:
+                generated_images = []
+
+                with st.spinner("全カットの画像を生成しています..."):
+                    for cut_no, prompt in enumerate(image_prompts, 1):
                         image_result = client.images.generate(
                             model="gpt-image-2",
-                            prompt=image_prompts[0],
+                            prompt=prompt,
                             size="1024x1536",
                             quality="medium",
                         )
+                        generated_images.append(
+                            image_result.data[0].b64_json
+                        )
+
+                for cut_no, image_b64 in enumerate(generated_images, 1):
                     st.image(
-                        f"data:image/png;base64,{image_result.data[0].b64_json}",
-                        caption="カット1",
+                        f"data:image/png;base64,{image_b64}",
+                        caption=f"カット{cut_no}",
                     )
-                except Exception as e:
-                    st.error(f"画像生成エラー: {e}")
+
+            except Exception as e:
+                st.error(f"画像生成エラー: {e}")
     
 
     st.subheader("Instagram")
