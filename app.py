@@ -1,5 +1,6 @@
 
 import json
+import base64
 import os
 from datetime import datetime
 from pathlib import Path
@@ -347,7 +348,8 @@ if data:
     if image_prompts:
         if st.button("全カットの画像を生成", use_container_width=True):
             try:
-                generated_images = []
+            generated_image_bytes = []
+            generated_images = []
 
                 with st.spinner("全カットの画像を生成しています..."):
                     for cut_no, prompt in enumerate(image_prompts, 1):
@@ -357,15 +359,18 @@ if data:
                             size="1024x1536",
                             quality="medium",
                         )
-                        generated_images.append(
-                            image_result.data[0].b64_json
+                        image_b64 = image_result.data[0].b64_json
+                        generated_images.append(image_b64)
+                        generated_image_bytes.append(
+                            base64.b64decode(image_b64)
                         )
 
-                for cut_no, image_b64 in enumerate(generated_images, 1):
-                    st.image(
-                        f"data:image/png;base64,{image_b64}",
-                        caption=f"カット{cut_no}",
-                    )
+                
+            for cut_no, image_bytes in enumerate(generated_image_bytes, 1):
+    st.image(
+        image_bytes,
+        caption=f"カット{cut_no}",
+    )
 
             except Exception as e:
                 st.error(f"画像生成エラー: {e}")
