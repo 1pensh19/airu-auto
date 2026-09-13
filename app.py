@@ -371,8 +371,10 @@ if data:
                         caption=f"カット{cut_no}",
                     )
 
-              except Exception as e:
-                st.error(f"画像生成エラー: {e}")   
+            except Exception as e:
+                        st.error(f"画像生成エラー: {e}")
+        
+                
     
 
     st.subheader("Instagram")
