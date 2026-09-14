@@ -348,10 +348,10 @@ if data:
         if st.button("全カットの画像を生成", use_container_width=True):
             try:
                 generated_image_bytes = []
-　　　            client = OpenAI(api_key=api_key)
+　
                 with st.spinner("全カットの画像を生成しています..."):
                     for cut_no, prompt in enumerate(image_prompts, 1):
-                        image_result = client.images.generate(
+                        image_result = OpenAI(api_key=api_key).images.generate(
                             model="gpt-image-2",
                             prompt=prompt,
                             size="1024x1536",
