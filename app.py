@@ -160,7 +160,7 @@ with st.sidebar:
         value=os.getenv("OPENAI_API_KEY", ""),
         help="キーはこの画面に貼るか、環境変数 OPENAI_API_KEY を設定してください。"
     )
-        runway_api_key = st.text_input(
+    runway_api_key = st.text_input(
         "Runway API Key",
         type="password",
         value=os.getenv("RUNWAYML_API_SECRET", ""),
