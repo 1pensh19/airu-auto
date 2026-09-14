@@ -374,9 +374,45 @@ if data:
                         image_bytes,
                         caption=f"カット{cut_no}",
                     )
+                    st.session_state["generated_image_bytes"] = generated_image_bytes
 
             except Exception as e:
                 st.error(f"画像生成エラー: {e}")
+                        generated_images = st.session_state.get("generated_image_bytes", [])
+
+        if generated_images and runway_api_key:
+            if st.button("🎬 1カット目をRunwayで動画化", use_container_width=True):
+                try:
+                    with st.spinner("Runwayで動画を生成しています..."):
+                        image_data_uri = (
+                            "data:image/png;base64,"
+                            + base64.b64encode(generated_images[0]).decode("utf-8")
+                        )
+
+                        runway_client = RunwayML(
+                            api_key=runway_api_key
+                        )
+
+                        task = runway_client.image_to_video.create(
+                            model="gen4.5",
+                            prompt_image=image_data_uri,
+                            prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
+                            ratio="768:1280",
+                            duration=5,
+                        ).wait_for_task_output()
+
+                        video_url = task.output[0]
+                        st.session_state["runway_test_video"] = video_url
+
+                    st.success("Runway動画の生成に成功しました。")
+
+                except Exception as e:
+                    st.error(f"Runway動画生成エラー: {e}")
+
+        if st.session_state.get("runway_test_video"):
+            st.video(st.session_state["runway_test_video"])
+                
+                
         
                 
     
