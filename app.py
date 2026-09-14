@@ -397,7 +397,7 @@ if data:
                             model="gen4.5",
                             prompt_image=image_data_uri,
                             prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
-                            ratio="768:1280",
+                            ratio="720:1280",
                             duration=5,
                         ).wait_for_task_output()
 
