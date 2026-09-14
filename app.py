@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from openai import OpenAI
+from runwayml import RunwayML
 
 APP_DIR = Path(__file__).parent
 HISTORY_FILE = APP_DIR / "history.csv"
