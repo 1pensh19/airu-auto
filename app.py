@@ -380,7 +380,7 @@ if data:
                 st.error(f"画像生成エラー: {e}")
             generated_images = st.session_state.get("generated_image_bytes", [])
 
-        if generated_images and runway_api_key:
+        if st.session_state.get("generated_image_bytes") and runway_api_key:
             if st.button("🎬 1カット目をRunwayで動画化", use_container_width=True):
                 try:
                     with st.spinner("Runwayで動画を生成しています..."):
