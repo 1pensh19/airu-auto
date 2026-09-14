@@ -386,7 +386,7 @@ if data:
                     with st.spinner("Runwayで動画を生成しています..."):
                         image_data_uri = (
                             "data:image/png;base64,"
-                            + base64.b64encode(generated_images[0]).decode("utf-8")
+                            + base64.b64encode(st.session_state["generated_image_bytes"][0]).decode("utf-8")
                         )
 
                         runway_client = RunwayML(
