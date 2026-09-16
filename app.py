@@ -380,17 +380,22 @@ if data:
                 st.error(f"画像生成エラー: {e}")
             generated_images = st.session_state.get("generated_image_bytes", [])
 
-        if st.session_state.get("generated_image_bytes") and runway_api_key:
-            if st.button("🎬 1カット目をRunwayで動画化", use_container_width=True):
-                try:
-                    with st.spinner("Runwayで動画を生成しています..."):
+     if st.session_state.get("generated_image_bytes") and runway_api_key:
+        if st.button("🎬 全カットをRunwayで動画化", use_container_width=True):
+            try:
+                runway_client = RunwayML(
+                    api_key=runway_api_key
+                )
+
+                runway_video_urls = []
+
+                with st.spinner("Runwayで全カットを動画化しています..."):
+                    for cut_no, image_bytes in enumerate(
+                        st.session_state["generated_image_bytes"], 1
+                    ):
                         image_data_uri = (
                             "data:image/png;base64,"
-                            + base64.b64encode(st.session_state["generated_image_bytes"][0]).decode("ascii")
-                        )
-
-                        runway_client = RunwayML(
-                            api_key=runway_api_key
+                            + base64.b64encode(image_bytes).decode("ascii")
                         )
 
                         task = runway_client.image_to_video.create(
@@ -401,16 +406,20 @@ if data:
                             duration=5,
                         ).wait_for_task_output()
 
-                        video_url = task.output[0]
-                        st.session_state["runway_test_video"] = video_url
+                        runway_video_urls.append(task.output[0])
 
-                    st.success("Runway動画の生成に成功しました。")
+                st.session_state["runway_video_urls"] = runway_video_urls
 
-                except Exception as e:
-                    st.error(f"Runway動画生成エラー: {e}")
+                st.success("全カットのRunway動画生成に成功しました！")
 
-        if st.session_state.get("runway_test_video"):
-            st.video(st.session_state["runway_test_video"])
+                for cut_no, video_url in enumerate(runway_video_urls, 1):
+                    st.write(f"カット{cut_no}")
+                    st.video(video_url)
+
+            except Exception as e:
+                st.error(f"Runway動画生成エラー: {e}")       
+
+
                 
                 
         
