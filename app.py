@@ -416,7 +416,7 @@ if data:
                          st.write(f"カット{cut_no}")
                          st.video(video_url)
 
-                    except Exception as e:
+              except Exception as e:
                         st.error(f"Runway動画生成エラー: {e}")       
 
 
