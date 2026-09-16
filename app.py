@@ -380,9 +380,9 @@ if data:
                 st.error(f"画像生成エラー: {e}")
             generated_images = st.session_state.get("generated_image_bytes", [])
 
-     if st.session_state.get("generated_image_bytes") and runway_api_key:
-        if st.button("🎬 全カットをRunwayで動画化", use_container_width=True):
-            try:
+            if st.session_state.get("generated_image_bytes") and runway_api_key:
+             if st.button("🎬 全カットをRunwayで動画化", use_container_width=True):
+              try:
                 runway_client = RunwayML(
                     api_key=runway_api_key
                 )
@@ -408,16 +408,16 @@ if data:
 
                         runway_video_urls.append(task.output[0])
 
-                st.session_state["runway_video_urls"] = runway_video_urls
+                        st.session_state["runway_video_urls"] = runway_video_urls
 
-                st.success("全カットのRunway動画生成に成功しました！")
+                        st.success("全カットのRunway動画生成に成功しました！")
 
-                for cut_no, video_url in enumerate(runway_video_urls, 1):
-                    st.write(f"カット{cut_no}")
-                    st.video(video_url)
+                        for cut_no, video_url in enumerate(runway_video_urls, 1):
+                         st.write(f"カット{cut_no}")
+                         st.video(video_url)
 
-            except Exception as e:
-                st.error(f"Runway動画生成エラー: {e}")       
+                except Exception as e:
+                    st.error(f"Runway動画生成エラー: {e}")       
 
 
                 
