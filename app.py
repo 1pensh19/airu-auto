@@ -379,45 +379,32 @@ if data:
             except Exception as e:
                 st.error(f"画像生成エラー: {e}")
             generated_images = st.session_state.get("generated_image_bytes", [])
+    
+    if generated_images and runway_api_key:
+        if st.button("🎬 Runway接続テスト", use_container_width=True):
+            try:
+                runway_client = RunwayML(api_key=runway_api_key)
 
-            if st.session_state.get("generated_image_bytes") and runway_api_key:
-             if st.button("🎬 全カットをRunwayで動画化", use_container_width=True):
-              try:
-                runway_client = RunwayML(
-                    api_key=runway_api_key
+                image_bytes = generated_images[0]
+                image_data_uri = (
+                    "data:image/png;base64,"
+                    + base64.b64encode(image_bytes).decode("ascii")
                 )
 
-                runway_video_urls = []
+                st.info("Runwayへ送信します...")
 
-                with st.spinner("Runwayで全カットを動画化しています..."):
-                    for cut_no, image_bytes in enumerate(
-    st.session_state["generated_image_bytes"][:1], 1
-                    ):
-                        image_data_uri = (
-                            "data:image/png;base64,"
-                            + base64.b64encode(image_bytes).decode("ascii")
-                        )
-                        task = runway_client.image_to_video.create(
-                            model="gen4.5",
-                            prompt_image=image_data_uri,
-                            prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
-                            ratio="720:1280",
-                            duration=5,
-                        )
+                task = runway_client.image_to_video.create(
+                    model="gen4.5",
+                    prompt_image=image_data_uri,
+                    prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
+                    ratio="720:1280",
+                    duration=5,
+                )
 
-                        # runway_video_urls.append(task.output[0])
+                st.success(f"Runwayへの送信成功！ Task ID: {task.id}")
 
-                        st.session_state["runway_video_urls"] = runway_video_urls
-
-                        st.success("全カットのRunway動画生成に成功しました！")
-
-                        for cut_no, video_url in enumerate(runway_video_urls, 1):
-                         st.write(f"カット{cut_no}")
-                         st.video(video_url)
-
-              except Exception as e:
-                        st.error(f"Runway動画生成エラー: {e}")       
-
+            except Exception as e:
+                st.error(f"Runway送信エラー: {e}")
 
                 
                 
