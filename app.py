@@ -397,7 +397,7 @@ if data:
                             "data:image/png;base64,"
                             + base64.b64encode(image_bytes).decode("ascii")
                         )
-
+　　　　　　　　　　　　　　　　st.write("DEBUG：Runway送信直前まで到達")
                         task = runway_client.image_to_video.create(
                             model="gen4.5",
                             prompt_image=image_data_uri,
