@@ -391,7 +391,7 @@ if data:
 
                 with st.spinner("Runwayで全カットを動画化しています..."):
                     for cut_no, image_bytes in enumerate(
-                        st.session_state["generated_image_bytes"], 1
+    st.session_state["generated_image_bytes"][:1], 1
                     ):
                         image_data_uri = (
                             "data:image/png;base64,"
