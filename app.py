@@ -404,9 +404,9 @@ if data:
                             prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
                             ratio="720:1280",
                             duration=5,
-                        ).wait_for_task_output()
+                        )
 
-                        runway_video_urls.append(task.output[0])
+                        # runway_video_urls.append(task.output[0])
 
                         st.session_state["runway_video_urls"] = runway_video_urls
 
