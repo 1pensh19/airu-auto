@@ -402,9 +402,32 @@ if data:
                 )
 
                 st.success(f"Runwayへの送信成功！ Task ID: {task.id}")
-                st.info("Runwayで動画を生成中です...")
+                            st.info("全カットをRunwayで動画生成します...")
+            runway_video_urls = []
+
+            for cut_no, image_bytes in enumerate(generated_images, 1):
+                image_data_uri = (
+                    "data:image/png;base64,"
+                    + base64.b64encode(image_bytes).decode("ascii")
+                )
+
+                st.info(f"カット{cut_no}を生成中...")
+
+                task = runway_client.image_to_video.create(
+                    model="gen4.5",
+                    prompt_image=image_data_uri,
+                    prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
+                    ratio="720:1280",
+                    duration=5,
+                )
+
                 result = runway_client.tasks.retrieve(task.id).wait_for_task_output()
+                runway_video_urls.append(result.output[0])
                 st.video(result.output[0])
+
+            st.session_state["runway_video_urls"] = runway_video_urls
+            st.success("全カットの動画生成が完了しました！")
+                
                 
 
             except Exception as e:
