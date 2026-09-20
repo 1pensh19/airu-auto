@@ -402,7 +402,7 @@ if data:
                 )
 
                 st.success(f"Runwayへの送信成功！ Task ID: {task.id}")
-                                st.info("Runwayで動画を生成中です...")
+                st.info("Runwayで動画を生成中です...")
                 result = runway_client.tasks.retrieve(task.id).wait_for_task_output()
                 st.video(result.output[0])
                 
