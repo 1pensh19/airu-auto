@@ -393,15 +393,7 @@ if data:
 
                 st.info("Runwayへ送信します...")
 
-                task = runway_client.image_to_video.create(
-                    model="gen4.5",
-                    prompt_image=image_data_uri,
-                    prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
-                    ratio="720:1280",
-                    duration=5,
-                )
-
-                st.success(f"Runwayへの送信成功！ Task ID: {task.id}")
+                
                             st.info("全カットをRunwayで動画生成します...")
             runway_video_urls = []
 
