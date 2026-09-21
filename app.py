@@ -421,7 +421,69 @@ if data:
         
                 
     
+    runway_video_urls = st.session_state.get("runway_video_urls", [])
 
+    if runway_video_urls:
+        if st.button("🎞️ 全カットを1本の動画に結合", use_container_width=True):
+            try:
+                import requests
+                import tempfile
+                import subprocess
+
+                with st.spinner("動画を結合しています..."):
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        video_files = []
+
+                        for i, url in enumerate(runway_video_urls, 1):
+                            video_path = os.path.join(tmpdir, f"cut_{i}.mp4")
+
+                            response = requests.get(url, timeout=120)
+                            response.raise_for_status()
+
+                            with open(video_path, "wb") as f:
+                                f.write(response.content)
+
+                            video_files.append(video_path)
+
+                        list_path = os.path.join(tmpdir, "videos.txt")
+
+                        with open(list_path, "w", encoding="utf-8") as f:
+                            for video_path in video_files:
+                                f.write(f"file '{video_path}'\n")
+
+                        output_path = os.path.join(tmpdir, "airu_final.mp4")
+
+                        subprocess.run(
+                            [
+                                "ffmpeg",
+                                "-y",
+                                "-f", "concat",
+                                "-safe", "0",
+                                "-i", list_path,
+                                "-c", "copy",
+                                output_path,
+                            ],
+                            check=True,
+                            capture_output=True,
+                        )
+
+                        with open(output_path, "rb") as f:
+                            final_video = f.read()
+
+                        st.session_state["final_video"] = final_video
+
+                st.success("1本の動画に結合できました！")
+                st.video(final_video)
+                st.download_button(
+                    "完成動画を保存",
+                    data=final_video,
+                    file_name="airu_final.mp4",
+                    mime="video/mp4",
+                    use_container_width=True,
+                )
+
+            except Exception as e:
+                st.error(f"動画結合エラー: {e}")
     st.subheader("Instagram")
     st.text_area("Caption", value=data.get("caption", ""), height=140)
     st.write(" ".join(data.get("hashtags", [])))
