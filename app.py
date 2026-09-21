@@ -152,6 +152,9 @@ def parse_json(text):
 
 history = load_history()
 
+if "runway_api_key" not in st.session_state:
+    st.session_state["runway_api_key"] = os.getenv("RUNWAYML_API_SECRET", "")
+
 with st.sidebar:
     st.header("設定")
     api_key = st.text_input(
@@ -163,7 +166,7 @@ with st.sidebar:
     runway_api_key = st.text_input(
         "Runway API Key",
         type="password",
-        value=os.getenv("RUNWAYML_API_SECRET", ""),
+        key="runway_api_key",
         help="Runway Devで取得したAPI Keyを入力してください。"
     )
     model = st.selectbox(
@@ -369,53 +372,122 @@ if data:
                             base64.b64decode(image_b64)
                         )
 
+                st.session_state["generated_image_bytes"] = generated_image_bytes
+                st.session_state["runway_video_urls_by_cut"] = {}
+                st.session_state["runway_task_ids_by_cut"] = {}
+                st.session_state.pop("runway_video_urls", None)
+                st.session_state.pop("final_video", None)
+
                 for cut_no, image_bytes in enumerate(generated_image_bytes, 1):
                     st.image(
                         image_bytes,
                         caption=f"カット{cut_no}",
                     )
-                    st.session_state["generated_image_bytes"] = generated_image_bytes
 
             except Exception as e:
                 st.error(f"画像生成エラー: {e}")
     generated_images = st.session_state.get("generated_image_bytes", [])
-    
+
+    def generate_runway_cut(client, image_bytes):
+        image_data_uri = (
+            "data:image/png;base64,"
+            + base64.b64encode(image_bytes).decode("ascii")
+        )
+
+        task = client.image_to_video.create(
+            model="gen4.5",
+            prompt_image=image_data_uri,
+            prompt_text=(
+                "Subtle natural cinematic motion, "
+                "realistic movement, smooth camera motion."
+            ),
+            ratio="720:1280",
+            duration=5,
+        )
+
+        result = task.wait_for_task_output(timeout=900)
+
+        if not result.output:
+            raise RuntimeError(
+                f"Runway task {task.id} succeeded but returned no video URL."
+            )
+
+        return task.id, result.output[0]
+
     if generated_images and runway_api_key:
-        if st.button("🎬 Runway接続テスト", use_container_width=True):
+        runway_client = RunwayML(api_key=runway_api_key)
+
+        video_urls_by_cut = st.session_state.setdefault(
+            "runway_video_urls_by_cut", {}
+        )
+        task_ids_by_cut = st.session_state.setdefault(
+            "runway_task_ids_by_cut", {}
+        )
+
+        if st.button(
+            "🎬 1カット目をRunwayで動画化",
+            use_container_width=True,
+        ):
             try:
-                runway_client = RunwayML(api_key=runway_api_key)
-                runway_video_urls = []
+                if 0 in video_urls_by_cut:
+                    st.info("1カット目は生成済みです。")
+                else:
+                    with st.spinner("1カット目を動画生成しています..."):
+                        task_id, video_url = generate_runway_cut(
+                            runway_client,
+                            generated_images[0],
+                        )
+                        task_ids_by_cut[0] = task_id
+                        video_urls_by_cut[0] = video_url
+                        st.session_state["runway_task_ids_by_cut"] = task_ids_by_cut
+                        st.session_state["runway_video_urls_by_cut"] = video_urls_by_cut
 
-                st.info("全カットをRunwayで動画生成します...")
-
-                for cut_no, image_bytes in enumerate(generated_images, 1):
-                    image_data_uri = (
-                        "data:image/png;base64,"
-                        + base64.b64encode(image_bytes).decode("ascii")
-                    )
-
-                    st.info(f"カット{cut_no}を生成中...")
-
-                    task = runway_client.image_to_video.create(
-                        model="gen4.5",
-                        prompt_image=image_data_uri,
-                        prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
-                        ratio="720:1280",
-                        duration=5,
-                    )
-
-                    result = runway_client.tasks.retrieve(
-                        task.id
-                    ).wait_for_task_output()
-
-                    runway_video_urls.append(result.output[0])
-                    st.video(result.output[0])
-
-                st.session_state["runway_video_urls"] = runway_video_urls
-                st.success("全カットの動画生成が完了しました！")
-
+                    st.success("1カット目の動画を取得できました。")
             except Exception as e:
-                st.error(f"Runway送信エラー: {e}")       
+                st.error(f"1カット目のRunway生成エラー: {e}")
+
+        if 0 in video_urls_by_cut:
+            st.video(video_urls_by_cut[0])
+
+            if st.button(
+                "🎬 未生成の全カットを連続動画化",
+                use_container_width=True,
+            ):
+                try:
+                    for cut_index, image_bytes in enumerate(generated_images):
+                        if cut_index in video_urls_by_cut:
+                            st.info(
+                                f"カット{cut_index + 1}は生成済みのため省略します。"
+                            )
+                            continue
+
+                        st.info(f"カット{cut_index + 1}を生成中...")
+                        task_id, video_url = generate_runway_cut(
+                            runway_client,
+                            image_bytes,
+                        )
+                        task_ids_by_cut[cut_index] = task_id
+                        video_urls_by_cut[cut_index] = video_url
+                        st.session_state["runway_task_ids_by_cut"] = task_ids_by_cut
+                        st.session_state["runway_video_urls_by_cut"] = video_urls_by_cut
+                        st.video(video_url)
+
+                    if len(video_urls_by_cut) == len(generated_images):
+                        st.session_state["runway_video_urls"] = [
+                            video_urls_by_cut[i]
+                            for i in range(len(generated_images))
+                        ]
+                        st.success("全カットの動画生成が完了しました。")
+                    else:
+                        st.warning(
+                            "未生成のカットがあります。もう一度実行すると、"
+                            "未生成分だけ再開します。"
+                        )
+                except Exception as e:
+                    st.error(
+                        "Runway生成を途中で停止しました。"
+                        f"成功済みカットは保持されています: {e}"
+                    )
                 
                 
         
