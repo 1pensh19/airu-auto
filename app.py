@@ -382,7 +382,7 @@ if data:
     
     if generated_images and runway_api_key:
         if st.button("🎬 Runway接続テスト", use_container_width=True):
-                 try:
+            try:
                 runway_client = RunwayML(api_key=runway_api_key)
                 runway_video_urls = []
 
