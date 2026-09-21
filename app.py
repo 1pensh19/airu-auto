@@ -382,49 +382,40 @@ if data:
     
     if generated_images and runway_api_key:
         if st.button("🎬 Runway接続テスト", use_container_width=True):
-            try:
+                 try:
                 runway_client = RunwayML(api_key=runway_api_key)
+                runway_video_urls = []
 
-                image_bytes = generated_images[0]
-                image_data_uri = (
-                    "data:image/png;base64,"
-                    + base64.b64encode(image_bytes).decode("ascii")
-                )
+                st.info("全カットをRunwayで動画生成します...")
 
-                st.info("Runwayへ送信します...")
+                for cut_no, image_bytes in enumerate(generated_images, 1):
+                    image_data_uri = (
+                        "data:image/png;base64,"
+                        + base64.b64encode(image_bytes).decode("ascii")
+                    )
 
-                
-            st.info("全カットをRunwayで動画生成します...")
-            runway_video_urls = []
+                    st.info(f"カット{cut_no}を生成中...")
 
-            for cut_no, image_bytes in enumerate(generated_images, 1):
-                image_data_uri = (
-                    "data:image/png;base64,"
-                    + base64.b64encode(image_bytes).decode("ascii")
-                )
+                    task = runway_client.image_to_video.create(
+                        model="gen4.5",
+                        prompt_image=image_data_uri,
+                        prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
+                        ratio="720:1280",
+                        duration=5,
+                    )
 
-                st.info(f"カット{cut_no}を生成中...")
+                    result = runway_client.tasks.retrieve(
+                        task.id
+                    ).wait_for_task_output()
 
-                task = runway_client.image_to_video.create(
-                    model="gen4.5",
-                    prompt_image=image_data_uri,
-                    prompt_text="Subtle natural cinematic motion, realistic movement, smooth camera motion.",
-                    ratio="720:1280",
-                    duration=5,
-                )
+                    runway_video_urls.append(result.output[0])
+                    st.video(result.output[0])
 
-                result = runway_client.tasks.retrieve(task.id).wait_for_task_output()
-                runway_video_urls.append(result.output[0])
-                st.video(result.output[0])
-
-            st.session_state["runway_video_urls"] = runway_video_urls
-            st.success("全カットの動画生成が完了しました！")
-                
-                
+                st.session_state["runway_video_urls"] = runway_video_urls
+                st.success("全カットの動画生成が完了しました！")
 
             except Exception as e:
-                st.error(f"Runway送信エラー: {e}")
-
+                st.error(f"Runway送信エラー: {e}")       
                 
                 
         
