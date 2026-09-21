@@ -2,3 +2,5 @@ streamlit>=1.38
 openai>=1.0
 pandas>=2.0
 runwayml==5.20.0
+requests>=2.32
+imageio-ffmpeg>=0.6
