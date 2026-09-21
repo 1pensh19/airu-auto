@@ -394,7 +394,7 @@ if data:
                 st.info("Runwayへ送信します...")
 
                 
-                            st.info("全カットをRunwayで動画生成します...")
+            st.info("全カットをRunwayで動画生成します...")
             runway_video_urls = []
 
             for cut_no, image_bytes in enumerate(generated_images, 1):
