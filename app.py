@@ -423,7 +423,7 @@ if data:
     
     runway_video_urls = st.session_state.get("runway_video_urls", [])
 
-        st.info("※ Runwayのクレジット不足時は、動画生成・結合は実行されません。")
+    st.info("※ Runwayのクレジット不足時は、動画生成・結合は実行されません。")
 
     if runway_video_urls:
         if st.button("🎞️ 全カットを1本の動画に結合", use_container_width=True):
